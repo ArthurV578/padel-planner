@@ -270,7 +270,7 @@
 const BOOK_URL = "https://www.peakzpadel.nl/reserveren/court-booking/reservation?location=Lichtfabriek";
 const DOW = ['ma','di','wo','do','vr','za','zo'];
 const MON = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
-const SLOTS = ['08:00','09:30','11:00','12:30','14:00','15:30','17:00','18:30','20:00','21:30'];
+const SLOTS = (()=>{ const a=[]; for(let m=7*60; m<=21*60+30; m+=30){ a.push(`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`); } return a; })(); // 07:00–21:30, every 30 min
 
 /* ---------- storage layer ----------
    shared=true  -> Netlify Function backed by Netlify Blobs (global, shared by everyone)
@@ -278,12 +278,11 @@ const SLOTS = ['08:00','09:30','11:00','12:30','14:00','15:30','17:00','18:30','
 const hasStore = true;
 async function sGet(key, shared){
   if(!shared){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
-  try{
-    const r = await fetch('/api/store?key='+encodeURIComponent(key));
-    if(!r.ok) return null;
-    const j = await r.json();
-    return j.value ?? null;
-  }catch(e){ return null; }
+  // shared: throw on a real failure so callers keep existing data instead of wiping it
+  const r = await fetch('/api/store?key='+encodeURIComponent(key));
+  if(!r.ok) throw new Error('store get failed: '+r.status);
+  const j = await r.json();
+  return j.value ?? null;
 }
 async function sSet(key, value, shared){
   if(!shared){ try{ localStorage.setItem(key, value); }catch(e){} return; }
@@ -315,10 +314,16 @@ function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg
 
 /* ---------- load / sync ---------- */
 async function loadShared(){
-  const s = await sGet('padel_sessions', true);
-  const a = await sGet('padel_availability', true);
-  sessions = s ? (typeof s==='string'?JSON.parse(s):s) : {};
-  availability = a ? (typeof a==='string'?JSON.parse(a):a) : {};
+  // On a transient network/function failure, KEEP what we have rather than
+  // resetting to {} (which a following save could then write over real data).
+  try{
+    const s = await sGet('padel_sessions', true);
+    sessions = s ? (typeof s==='string'?JSON.parse(s):s) : {};
+  }catch(e){ console.warn('sessions load failed — keeping current'); }
+  try{
+    const a = await sGet('padel_availability', true);
+    availability = a ? (typeof a==='string'?JSON.parse(a):a) : {};
+  }catch(e){ console.warn('availability load failed — keeping current'); }
 }
 async function saveSessions(){ await sSet('padel_sessions', JSON.stringify(sessions), true); }
 async function saveAvailability(){ await sSet('padel_availability', JSON.stringify(availability), true); }
@@ -365,6 +370,7 @@ function renderAgenda(){
     if(daySes.length){
       html += '<div class="sessions">';
       daySes.forEach(s=>{ html += sessionHtml(s); });
+      html += `<button class="chip-btn add-more" data-date="${dk}" type="button" style="margin:8px 6px 2px">+ Nog een sessie op deze dag</button>`;
       html += '</div>';
     }else{
       html = html.replace('class="day-hd"','class="day-hd"');
