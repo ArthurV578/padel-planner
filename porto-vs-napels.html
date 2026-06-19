@@ -34,22 +34,36 @@
     background:var(--bg);
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
-    overflow:hidden;
   }
+  body.js{overflow:hidden}
   .serif{font-family:'Fraunces',Georgia,serif}
 
-  /* ---------- deck shell ---------- */
-  .deck{height:100vh;width:100vw;position:relative;overflow:hidden}
+  /* ---------- deck shell ----------
+     Default (no JS / preview viewers): slides stack vertically and scroll,
+     so every "page" is always reachable. With JS it becomes a slideshow. */
+  .deck{width:100vw;position:relative}
+  body.js .deck{height:100vh;overflow:hidden}
   .slide{
-    position:absolute;inset:0;
     display:flex;flex-direction:column;
     padding:clamp(20px,4vw,56px) clamp(18px,5vw,72px);
+    min-height:100vh;
+    border-bottom:1px solid var(--line);
+  }
+  body.js .slide{
+    position:absolute;inset:0;
+    min-height:0;border-bottom:0;
     opacity:0;visibility:hidden;
     transform:translateY(18px);
     transition:opacity .5s ease,transform .5s ease,visibility .5s;
     overflow-y:auto;
   }
-  .slide.active{opacity:1;visibility:visible;transform:none}
+  body.js .slide.active{opacity:1;visibility:visible;transform:none}
+
+  /* slideshow chrome only makes sense with JS */
+  .topbar,.nav,.counter,.hint{display:none}
+  body.js .topbar{display:block}
+  body.js .nav{display:flex}
+  body.js .counter,body.js .hint{display:block}
   .slide-inner{max-width:1100px;margin:auto;width:100%}
 
   /* eyebrow */
@@ -64,7 +78,7 @@
   /* ---------- progress + nav ---------- */
   .topbar{position:fixed;top:0;left:0;right:0;height:5px;background:rgba(27,35,48,.06);z-index:40}
   .topbar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--porto),var(--naples));transition:width .5s ease}
-  .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 10px;box-shadow:var(--shadow-sm)}
+  .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);align-items:center;gap:14px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 10px;box-shadow:var(--shadow-sm)}
   .nav button{border:0;background:transparent;width:38px;height:38px;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:var(--ink);transition:.2s}
   .nav button:hover{background:var(--bg)}
   .nav button:disabled{opacity:.3;cursor:default}
@@ -393,6 +407,9 @@
 <div class="hint">Gebruik ← → toetsen, swipe of de pijlen om te navigeren</div>
 
 <script>
+/* progressive enhancement: switch from stacked fallback to slideshow */
+document.body.classList.add('js');
+
 /* ---------- deck navigation ---------- */
 const slides = Array.from(document.querySelectorAll('.slide'));
 const dotsHost = document.getElementById('dots');
