@@ -123,6 +123,13 @@
   .porto .hotel .stars{color:var(--porto)} .naples .hotel .stars{color:var(--naples)}
   .hotel .hd{font-size:13.5px;line-height:1.45;color:var(--ink-soft);margin:0}
   .hotel .hd b{color:var(--ink)}
+  a.hn{color:inherit;text-decoration:none}
+  a.hn:hover{text-decoration:underline}
+  .hlinks{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .hlinks a{font-size:12px;font-weight:700;text-decoration:none;padding:6px 12px;border-radius:9px;border:1px solid var(--line);color:var(--ink);display:inline-flex;align-items:center;gap:5px}
+  .hlinks a:hover{border-color:var(--ink)}
+  .hlinks a.bk{background:#003b95;color:#fff;border-color:#003b95}
+  .hlinks a.bk:hover{background:#00307a}
   .note{margin-top:6px;font-size:12.5px;color:var(--muted);font-style:italic}
 
   .kicker{font-family:'Fraunces',serif;font-style:italic;font-size:clamp(20px,3vw,30px);color:var(--ink);margin-top:28px;line-height:1.3}
@@ -331,27 +338,47 @@
         <div class="pbox porto">
           <div class="cn">Porto</div>
           <div class="hotel">
-            <div class="ht"><span class="hn">The Yeatman</span><span class="stars">★★★★★</span></div>
+            <div class="ht"><a class="hn" href="https://www.the-yeatman-hotel.com/" target="_blank" rel="noopener">The Yeatman</a><span class="stars">★★★★★</span></div>
             <p class="hd">Beroemd <b>outdoor infinity-zwembad</b> in decanteervorm met panorama over Porto & de Douro. Luxe wijnhotel met spa, in Vila Nova de Gaia (overkant van de rivier).</p>
+            <div class="hlinks">
+              <a href="https://www.the-yeatman-hotel.com/" target="_blank" rel="noopener">Eigen site ↗</a>
+              <a class="bk" href="https://www.booking.com/searchresults.html?ss=The+Yeatman+Porto&checkin=2026-07-23&checkout=2026-07-27&group_adults=2&no_rooms=1" target="_blank" rel="noopener">Booking.com ↗</a>
+            </div>
           </div>
           <div class="hotel">
-            <div class="ht"><span class="hn">Torel Avantgarde</span><span class="stars">★★★★★</span></div>
+            <div class="ht"><a class="hn" href="https://www.torelavantgarde.com/" target="_blank" rel="noopener">Torel Avantgarde</a><span class="stars">★★★★★</span></div>
             <p class="hd">Boutique-hotel met <b>rooftop infinity-pool</b> en swim-up bar, uitzicht over de Douro. Centraal en stijlvol.</p>
+            <div class="hlinks">
+              <a href="https://www.torelavantgarde.com/" target="_blank" rel="noopener">Eigen site ↗</a>
+              <a class="bk" href="https://www.booking.com/searchresults.html?ss=Torel+Avantgarde+Porto&checkin=2026-07-23&checkout=2026-07-27&group_adults=2&no_rooms=1" target="_blank" rel="noopener">Booking.com ↗</a>
+            </div>
           </div>
           <div class="hotel">
-            <div class="ht"><span class="hn">The Editory Boulevard Aliados</span><span class="stars">★★★★</span></div>
+            <div class="ht"><a class="hn" href="https://www.editoryhotels.com/en/boulevard-aliados-porto/" target="_blank" rel="noopener">The Editory Boulevard Aliados</a><span class="stars">★★★★</span></div>
             <p class="hd">Centraal aan de Avenida dos Aliados met een <b>rooftop-zwembad</b> — fijne prijs-kwaliteit.</p>
+            <div class="hlinks">
+              <a href="https://www.editoryhotels.com/en/boulevard-aliados-porto/" target="_blank" rel="noopener">Eigen site ↗</a>
+              <a class="bk" href="https://www.booking.com/searchresults.html?ss=The+Editory+Boulevard+Aliados+Porto&checkin=2026-07-23&checkout=2026-07-27&group_adults=2&no_rooms=1" target="_blank" rel="noopener">Booking.com ↗</a>
+            </div>
           </div>
         </div>
         <div class="pbox naples">
           <div class="cn">Napels</div>
           <div class="hotel">
-            <div class="ht"><span class="hn">San Francesco al Monte</span><span class="stars">★★★★</span></div>
+            <div class="ht"><a class="hn" href="https://sanfrancescoalmonte.it/en/" target="_blank" rel="noopener">San Francesco al Monte</a><span class="stars">★★★★</span></div>
             <p class="hd">16e-eeuws klooster op de Vomero-heuvel met <b>rooftop-zwembad & tuin</b> en uitzicht over de baai, Vesuvius en Capri. Pool open mei–sept (dus in juli). Topwaarde.</p>
+            <div class="hlinks">
+              <a href="https://sanfrancescoalmonte.it/en/" target="_blank" rel="noopener">Eigen site ↗</a>
+              <a class="bk" href="https://www.booking.com/hotel/it/sanfrancescoalmonte.html?checkin=2026-07-23&checkout=2026-07-27&group_adults=2&no_rooms=1" target="_blank" rel="noopener">Booking.com ↗</a>
+            </div>
           </div>
           <div class="hotel">
-            <div class="ht"><span class="hn">ROMEO Napoli</span><span class="stars">★★★★★</span></div>
+            <div class="ht"><a class="hn" href="https://theromeocollection.com/en/romeo-napoli/" target="_blank" rel="noopener">ROMEO Napoli</a><span class="stars">★★★★★</span></div>
             <p class="hd">Design-luxe bij de haven met een <b>rooftop infinity-pool</b> (10e verd.) plus plunge pool, uitzicht op de golf, Ischia & Capri. Inclusief spa.</p>
+            <div class="hlinks">
+              <a href="https://theromeocollection.com/en/romeo-napoli/" target="_blank" rel="noopener">Eigen site ↗</a>
+              <a class="bk" href="https://www.booking.com/searchresults.html?ss=Romeo+Hotel+Napoli&checkin=2026-07-23&checkout=2026-07-27&group_adults=2&no_rooms=1" target="_blank" rel="noopener">Booking.com ↗</a>
+            </div>
           </div>
           <p class="note">Let op: echte buitenzwembaden zijn schaars in centraal Napels. Voor puur luieren-aan-het-water kun je ook naar de kust kijken (Posillipo of Sorrento).</p>
         </div>
