@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Porto vs. Napels — Lang weekend (do t/m ma)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Porto — Atlantisch / azulejo */
+    --porto:#1f6f8b;
+    --porto-dark:#15506a;
+    --porto-tint:#e6f1f5;
+    /* Napels — mediterraan / terracotta */
+    --naples:#d96b3a;
+    --naples-dark:#b24f24;
+    --naples-tint:#fbeee4;
+    /* basis */
+    --ink:#1b2330;
+    --ink-soft:#4a5568;
+    --muted:#8a93a3;
+    --line:#e7eaf0;
+    --bg:#f5f1ea;
+    --card:#ffffff;
+    --shadow:0 18px 50px rgba(27,35,48,.12);
+    --shadow-sm:0 6px 20px rgba(27,35,48,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .serif{font-family:'Fraunces',Georgia,serif}
+
+  /* ---------- deck shell ---------- */
+  .deck{height:100vh;width:100vw;position:relative;overflow:hidden}
+  .slide{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;
+    padding:clamp(20px,4vw,56px) clamp(18px,5vw,72px);
+    opacity:0;visibility:hidden;
+    transform:translateY(18px);
+    transition:opacity .5s ease,transform .5s ease,visibility .5s;
+    overflow-y:auto;
+  }
+  .slide.active{opacity:1;visibility:visible;transform:none}
+  .slide-inner{max-width:1100px;margin:auto;width:100%}
+
+  /* eyebrow */
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--porto)}
+  .eyebrow .dot.n{background:var(--naples)}
+
+  h1.title{font-size:clamp(34px,6vw,76px);line-height:1.02;font-weight:600;margin:0 0 18px;letter-spacing:-.02em}
+  h2.h{font-size:clamp(26px,4vw,46px);line-height:1.05;font-weight:600;margin:0 0 10px;letter-spacing:-.015em}
+  .lead{font-size:clamp(15px,1.8vw,20px);color:var(--ink-soft);line-height:1.55;max-width:720px}
+
+  /* ---------- progress + nav ---------- */
+  .topbar{position:fixed;top:0;left:0;right:0;height:5px;background:rgba(27,35,48,.06);z-index:40}
+  .topbar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--porto),var(--naples));transition:width .5s ease}
+  .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 10px;box-shadow:var(--shadow-sm)}
+  .nav button{border:0;background:transparent;width:38px;height:38px;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:var(--ink);transition:.2s}
+  .nav button:hover{background:var(--bg)}
+  .nav button:disabled{opacity:.3;cursor:default}
+  .nav button svg{width:20px;height:20px}
+  .dots{display:flex;gap:7px;align-items:center}
+  .dots i{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;transition:.25s}
+  .dots i.on{background:var(--ink);transform:scale(1.25)}
+  .counter{position:fixed;top:18px;right:22px;z-index:40;font-size:13px;font-weight:600;color:var(--muted)}
+  .hint{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);z-index:40;text-align:center;width:100%}
+
+  /* ---------- hero ---------- */
+  .hero{background:
+    radial-gradient(120% 100% at 0% 0%, var(--porto-tint), transparent 55%),
+    radial-gradient(120% 100% at 100% 100%, var(--naples-tint), transparent 55%);}
+  .vs-badge{display:inline-flex;align-items:center;gap:14px;font-family:'Fraunces',serif;font-weight:600;margin:8px 0 26px}
+  .vs-badge .city{font-size:clamp(28px,5vw,56px);line-height:1}
+  .vs-badge .p{color:var(--porto)}
+  .vs-badge .n{color:var(--naples)}
+  .vs-badge .v{font-size:clamp(18px,2.4vw,26px);color:var(--muted);font-style:italic}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;box-shadow:var(--shadow-sm)}
+  .pill svg{width:16px;height:16px;color:var(--ink-soft)}
+
+  /* ---------- vibe chips ---------- */
+  .vibes{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .vibe{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow-sm)}
+  .vibe span.emo{font-size:18px}
+
+  /* ---------- two-column city cards ---------- */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:8px}
+  .ccard{border-radius:22px;padding:26px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow);min-height:200px}
+  .ccard.porto{background:linear-gradient(150deg,var(--porto),var(--porto-dark))}
+  .ccard.naples{background:linear-gradient(150deg,var(--naples),var(--naples-dark))}
+  .ccard h3{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin:0 0 4px}
+  .ccard .sub{font-size:13px;opacity:.85;font-weight:500;margin-bottom:16px}
+  .ccard ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .ccard li{display:flex;gap:10px;font-size:14.5px;line-height:1.4;align-items:flex-start}
+  .ccard li b{font-weight:700}
+  .ccard li .ic{flex:none;opacity:.9}
+  .ccard .watermark{position:absolute;right:-10px;bottom:-24px;font-size:120px;opacity:.13;font-family:'Fraunces',serif}
+
+  /* ---------- interactive comparison ---------- */
+  .cmp-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 22px}
+  .cmp-tab{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 16px;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--ink-soft);transition:.2s;display:flex;align-items:center;gap:7px}
+  .cmp-tab:hover{border-color:var(--ink)}
+  .cmp-tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .cmp-tab .emo{font-size:15px}
+  .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .cmp-side{border-radius:18px;padding:24px;box-shadow:var(--shadow-sm);border:1px solid var(--line);background:var(--card);position:relative}
+  .cmp-side.porto{border-top:5px solid var(--porto)}
+  .cmp-side.naples{border-top:5px solid var(--naples)}
+  .cmp-side .cl{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .cmp-side .cn{font-family:'Fraunces',serif;font-size:22px;font-weight:600}
+  .cmp-side.porto .cn{color:var(--porto-dark)}
+  .cmp-side.naples .cn{color:var(--naples-dark)}
+  .stars{font-size:14px;letter-spacing:2px}
+  .cmp-side.porto .stars{color:var(--porto)}
+  .cmp-side.naples .stars{color:var(--naples)}
+  .cmp-body{font-size:15px;line-height:1.6;color:var(--ink-soft);min-height:96px}
+  .cmp-body b{color:var(--ink)}
+  .cmp-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+  .cmp-tags span{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px}
+  .porto .cmp-tags span{background:var(--porto-tint);color:var(--porto-dark)}
+  .naples .cmp-tags span{background:var(--naples-tint);color:var(--naples-dark)}
+
+  /* ---------- itinerary ---------- */
+  .it-switch{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px;margin:4px 0 22px;box-shadow:var(--shadow-sm)}
+  .it-switch button{border:0;background:transparent;padding:10px 22px;border-radius:999px;font-weight:700;font-size:14px;cursor:pointer;color:var(--ink-soft);transition:.2s}
+  .it-switch button.on.porto{background:var(--porto);color:#fff}
+  .it-switch button.on.naples{background:var(--naples);color:#fff}
+  .timeline{display:grid;gap:12px}
+  .tl-day{display:grid;grid-template-columns:88px 1fr;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+  .tl-dow{font-family:'Fraunces',serif}
+  .tl-dow .d{font-size:19px;font-weight:600;line-height:1}
+  .tl-dow .t{font-size:12px;color:var(--muted);font-weight:500;margin-top:3px}
+  .tl-acts{display:grid;gap:7px}
+  .tl-acts .row{display:flex;gap:10px;font-size:14.5px;line-height:1.45;align-items:flex-start}
+  .tl-acts .row .tag{flex:none;font-size:16px}
+
+  /* ---------- preference quiz ---------- */
+  .quiz{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:var(--shadow-sm)}
+  .q-row{margin-bottom:18px}
+  .q-row > p{font-weight:600;font-size:15px;margin:0 0 9px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .opt{border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;transition:.18s;background:#fff;line-height:1.3}
+  .opt .emo{font-size:18px}
+  .opt:hover{border-color:var(--ink)}
+  .opt.sel-p{border-color:var(--porto);background:var(--porto-tint);color:var(--porto-dark)}
+  .opt.sel-n{border-color:var(--naples);background:var(--naples-tint);color:var(--naples-dark)}
+  .result{margin-top:22px;border-radius:16px;padding:22px;text-align:center;background:var(--bg);border:1px dashed var(--line);transition:.3s}
+  .result.show-p{background:var(--porto-tint);border-color:var(--porto)}
+  .result.show-n{background:var(--naples-tint);border-color:var(--naples)}
+  .result .rt{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .result .rc{font-family:'Fraunces',serif;font-size:34px;font-weight:600;margin:6px 0 4px}
+  .result.show-p .rc{color:var(--porto-dark)}
+  .result.show-n .rc{color:var(--naples-dark)}
+  .scorebar{display:flex;height:14px;border-radius:999px;overflow:hidden;margin:14px auto 0;max-width:340px;background:var(--line)}
+  .scorebar .sp{background:var(--porto);transition:width .4s}
+  .scorebar .sn{background:var(--naples);transition:width .4s}
+  .score-lbl{display:flex;justify-content:space-between;max-width:340px;margin:7px auto 0;font-size:12px;font-weight:600}
+  .score-lbl .lp{color:var(--porto-dark)}
+  .score-lbl .ln{color:var(--naples-dark)}
+
+  /* ---------- verdict ---------- */
+  .verdict{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  .vbox{border-radius:18px;padding:24px;box-shadow:var(--shadow-sm);background:var(--card);border:1px solid var(--line)}
+  .vbox h4{font-family:'Fraunces',serif;font-size:21px;margin:0 0 12px;font-weight:600}
+  .vbox.porto h4{color:var(--porto-dark)}
+  .vbox.naples h4{color:var(--naples-dark)}
+  .vbox p{margin:0;font-size:15px;line-height:1.6;color:var(--ink-soft)}
+  .vbox .verdict-tag{display:inline-block;margin-bottom:14px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
+  .vbox.porto .verdict-tag{background:var(--porto-tint);color:var(--porto-dark)}
+  .vbox.naples .verdict-tag{background:var(--naples-tint);color:var(--naples-dark)}
+
+  .kicker{font-family:'Fraunces',serif;font-style:italic;font-size:clamp(20px,3vw,30px);color:var(--ink);margin-top:30px;line-height:1.3}
+
+  @media(max-width:760px){
+    .cols,.cmp-grid,.verdict{grid-template-columns:1fr}
+    .opts{grid-template-columns:1fr}
+    .tl-day{grid-template-columns:64px 1fr;gap:12px}
+    .slide{padding:46px 20px 90px}
+    .ccard .watermark{display:none}
+    .hint{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"><i id="prog"></i></div>
+<div class="counter"><span id="cur">1</span> / <span id="tot">8</span></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 — HERO -->
+  <section class="slide active hero">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>Lang weekend · donderdag t/m maandag</div>
+      <div class="vs-badge">
+        <span class="city p">Porto</span>
+        <span class="v">vs.</span>
+        <span class="city n">Napels</span>
+      </div>
+      <p class="lead">Twee Zuid-Europese steden, twee totaal verschillende ritmes. Dit weekend draait om <b>bijkomen</b>: terrasje pakken, shoppen, langs het zwembad hangen en hier en daar een beetje sightseeing. Welke stad past het beste bij die stemming?</p>
+      <div class="meta-row">
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/></svg> 5 dagen · 4 nachten</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M3 16l7-2 4-9 2 1-2 8 5-1 1 2-16 4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg> ± 2,5–3u directe vlucht vanaf AMS</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Juni · zomerse temperaturen</span>
+      </div>
+      <div class="vibes">
+        <div class="vibe"><span class="emo">🍹</span> Terrasje pakken</div>
+        <div class="vibe"><span class="emo">🛍️</span> Shoppen</div>
+        <div class="vibe"><span class="emo">🏊</span> Langs het zwembad</div>
+        <div class="vibe"><span class="emo">📸</span> Een beetje sightseeing</div>
+        <div class="vibe"><span class="emo">😌</span> Bijkomen & ontspannen</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 — DE EERSTE INDRUK -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>Het grote contrast</div>
+      <h2 class="h serif">Rustig & verfijnd, of levendig & rauw?</h2>
+      <p class="lead" style="margin-bottom:18px">Dit is het belangrijkste verschil: de twee steden hebben een compleet ander tempo. Porto fluistert, Napels schreeuwt.</p>
+      <div class="cols">
+        <div class="ccard porto">
+          <h3 class="serif">Porto</h3>
+          <div class="sub">Atlantische kust · Portugal</div>
+          <ul>
+            <li><span class="ic">🧘</span><span><b>Kalm & ontspannen.</b> Aangenaam tempo, overzichtelijk en heel relaxed om door te slenteren.</span></li>
+            <li><span class="ic">🌊</span><span><b>Koelere Atlantische bries.</b> In juni zomers maar nooit drukkend — fijn weer om actief te zijn.</span></li>
+            <li><span class="ic">🍷</span><span><b>Port-wijn & rivier.</b> Zonsondergangen langs de Douro met een glaasje port in de hand.</span></li>
+            <li><span class="ic">🚶</span><span><b>Compact & wandelbaar</b> (wel heuvelachtig). Alles te voet of met de tram te doen.</span></li>
+          </ul>
+          <span class="watermark serif">P</span>
+        </div>
+        <div class="ccard naples">
+          <h3 class="serif">Napels</h3>
+          <div class="sub">Middellandse Zee · Italië</div>
+          <ul>
+            <li><span class="ic">🔥</span><span><b>Chaotisch & energiek.</b> Druk, luid en intens — pure, ongepolijste Italiaanse energie.</span></li>
+            <li><span class="ic">☀️</span><span><b>Heter & mediterraan.</b> In juni echt warm (±28–30°C) met een lekker warme zee.</span></li>
+            <li><span class="ic">🍕</span><span><b>Bakermat van de pizza.</b> Wereldberoemde keuken voor weinig geld — eten is hier hoofdzaak.</span></li>
+            <li><span class="ic">⛵</span><span><b>Springplank naar de kust.</b> Capri, Amalfi en Pompeï liggen op een steenworp afstand.</span></li>
+          </ul>
+          <span class="watermark serif">N</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 — INTERACTIVE COMPARISON -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>Vergelijk per thema · klik door</div>
+      <h2 class="h serif">Waar zit het verschil?</h2>
+      <div class="cmp-tabs" id="cmpTabs"></div>
+      <div class="cmp-grid">
+        <div class="cmp-side porto">
+          <div class="cl"><span class="cn">Porto</span><span class="stars" id="pStars"></span></div>
+          <div class="cmp-body" id="pBody"></div>
+          <div class="cmp-tags" id="pTags"></div>
+        </div>
+        <div class="cmp-side naples">
+          <div class="cl"><span class="cn">Napels</span><span class="stars" id="nStars"></span></div>
+          <div class="cmp-body" id="nBody"></div>
+          <div class="cmp-tags" id="nTags"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 — TERRAS & ZWEMBAD focus -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>Het lui-aan-het-water-gevoel</div>
+      <h2 class="h serif">Zwembad, zee & terrasleven</h2>
+      <p class="lead" style="margin-bottom:18px">Het hart van deze trip. Hier ligt een subtiel maar belangrijk verschil voor de "bijkomen"-vibe.</p>
+      <div class="cols">
+        <div class="ccard porto">
+          <h3 class="serif">In Porto</h3>
+          <div class="sub">Rooftop pools & rivierterrassen</div>
+          <ul>
+            <li><span class="ic">🏊</span><span><b>Rooftop-zwembaden</b> bij design-hotels met uitzicht over de stad — de plek om te liggen, want de Atlantische oceaan blijft fris.</span></li>
+            <li><span class="ic">🏖️</span><span><b>Stranden bij Foz & Matosinhos</b> voor de sfeer en strandtenten; het water is frisjes (surfwater).</span></li>
+            <li><span class="ic">🍹</span><span><b>Terrasjes langs de Douro</b> en op de daken — rustig nippen met uitzicht, zelden gehaast.</span></li>
+          </ul>
+          <span class="watermark serif">🏊</span>
+        </div>
+        <div class="ccard naples">
+          <h3 class="serif">In Napels</h3>
+          <div class="sub">Warme zee & aperitivo</div>
+          <ul>
+            <li><span class="ic">🌊</span><span><b>Warme Middellandse Zee</b> — echt zwemweer. Strandclubs (lidi) bij Posillipo of een dagje Capri/Procida.</span></li>
+            <li><span class="ic">🏨</span><span><b>Hotel-pools schaarser</b> in de stad zelf; voor luieren-aan-het-water ga je richting kust of een eiland.</span></li>
+            <li><span class="ic">🥂</span><span><b>Aperitivo-cultuur</b> op de Lungomare en pleinen — luid, gezellig en altijd levendig.</span></li>
+          </ul>
+          <span class="watermark serif">🌊</span>
+        </div>
+      </div>
+      <p class="kicker">Wil je <b>echt zwemmen in zee</b> → Napels. Wil je <b>relaxen aan een rustig rooftop-zwembad</b> → Porto.</p>
+    </div>
+  </section>
+
+  <!-- 5 — ITINERARY -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>Voorbeeld-programma · do t/m ma</div>
+      <h2 class="h serif">Hoe ziet je weekend eruit?</h2>
+      <div class="it-switch">
+        <button id="itP" class="on porto" onclick="setItin('porto')">Porto</button>
+        <button id="itN" class="naples" onclick="setItin('naples')">Napels</button>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </section>
+
+  <!-- 6 — PRACTISCH -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>Praktisch in het kort</div>
+      <h2 class="h serif">Even de feiten naast elkaar</h2>
+      <div class="cmp-grid" style="margin-top:14px">
+        <div class="cmp-side porto">
+          <div class="cl"><span class="cn">Porto</span></div>
+          <div class="cmp-body" style="min-height:auto">
+            <p style="margin:0 0 10px"><b>Weer juni:</b> ±22–25°C, zonnig met frisse bries, koel 's avonds.</p>
+            <p style="margin:0 0 10px"><b>Zee:</b> Atlantisch, fris (±17°C) — meer kijken dan zwemmen.</p>
+            <p style="margin:0 0 10px"><b>Sfeer:</b> rustig, veilig, makkelijk te voet.</p>
+            <p style="margin:0 0 10px"><b>Prijs:</b> voordelig — eten, wijn en hotels goedkoper dan NL.</p>
+            <p style="margin:0"><b>Beste voor:</b> echt ontspannen zonder prikkels.</p>
+          </div>
+        </div>
+        <div class="cmp-side naples">
+          <div class="cl"><span class="cn">Napels</span></div>
+          <div class="cmp-body" style="min-height:auto">
+            <p style="margin:0 0 10px"><b>Weer juni:</b> ±28–30°C, heet en zonnig.</p>
+            <p style="margin:0 0 10px"><b>Zee:</b> warm (±23°C) — heerlijk zwemmen.</p>
+            <p style="margin:0 0 10px"><b>Sfeer:</b> druk en chaotisch; let op je spullen.</p>
+            <p style="margin:0 0 10px"><b>Prijs:</b> heel voordelig, vooral het eten.</p>
+            <p style="margin:0"><b>Beste voor:</b> zon, zee, eten en levendigheid.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 — QUIZ -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>Welke past bij jullie? · interactief</div>
+      <h2 class="h serif">Doe de mini-test</h2>
+      <p class="lead" style="margin-bottom:18px">Klik per vraag op wat jullie het liefst willen. Onderaan zie je live de uitslag.</p>
+      <div class="quiz" id="quiz"></div>
+    </div>
+  </section>
+
+  <!-- 8 — VERDICT -->
+  <section class="slide hero">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span><span class="dot n"></span>De conclusie</div>
+      <h2 class="h serif">Twee goede keuzes — kies je vibe</h2>
+      <div class="verdict">
+        <div class="vbox porto">
+          <span class="verdict-tag">Kies Porto als…</span>
+          <h4 class="serif">Rust, charme & ontprikkelen</h4>
+          <p>Je wilt vooral écht bijkomen: rustig slenteren, rooftop-zwembad, port aan de rivier en relaxte terrasjes zonder gedoe. Aangenaam zomers in plaats van heet, compact en ontspannen. Sightseeing is licht en optioneel.</p>
+        </div>
+        <div class="vbox naples">
+          <span class="verdict-tag">Kies Napels als…</span>
+          <h4 class="serif">Zon, zee, eten & reuring</h4>
+          <p>Je laadt juist op van energie, warmte en de beste pizza van je leven. Echt zwemmen in een warme zee, levendige aperitivo's en op een steenworp afstand Capri, Amalfi en Pompeï voor wat sightseeing.</p>
+        </div>
+      </div>
+      <p class="kicker">Voor maximaal <b>bijkomen & ontspannen</b> leunt het naar <span style="color:var(--porto-dark)">Porto</span>. Voor <b>zon, zwemmen & levendigheid</b> wint <span style="color:var(--naples-dark)">Napels</span>. 🍹</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="Vorige"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div class="dots" id="dots"></div>
+  <button id="next" aria-label="Volgende"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+<div class="hint">Gebruik ← → toetsen, swipe of de pijlen om te navigeren</div>
+
+<script>
+/* ---------- deck navigation ---------- */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dotsHost = document.getElementById('dots');
+let idx = 0;
+document.getElementById('tot').textContent = slides.length;
+
+slides.forEach((_,i)=>{
+  const d=document.createElement('i');
+  d.addEventListener('click',()=>go(i));
+  dotsHost.appendChild(d);
+});
+const dots = Array.from(dotsHost.children);
+
+function go(n){
+  idx = Math.max(0, Math.min(slides.length-1, n));
+  slides.forEach((s,i)=>s.classList.toggle('active', i===idx));
+  dots.forEach((d,i)=>d.classList.toggle('on', i===idx));
+  document.getElementById('prog').style.width = ((idx+1)/slides.length*100)+'%';
+  document.getElementById('cur').textContent = idx+1;
+  document.getElementById('prev').disabled = idx===0;
+  document.getElementById('next').disabled = idx===slides.length-1;
+}
+document.getElementById('prev').addEventListener('click',()=>go(idx-1));
+document.getElementById('next').addEventListener('click',()=>go(idx+1));
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='PageDown') go(idx+1);
+  if(e.key==='ArrowLeft'||e.key==='PageUp') go(idx-1);
+  if(e.key==='Home') go(0);
+  if(e.key==='End') go(slides.length-1);
+});
+// swipe
+let sx=0;
+document.getElementById('deck').addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+document.getElementById('deck').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx;
+  if(Math.abs(dx)>60){ dx<0?go(idx+1):go(idx-1); }
+},{passive:true});
+
+/* ---------- comparison data ---------- */
+const CMP = [
+  { key:'terras', emo:'🍹', label:'Terrasjes',
+    p:{stars:4, body:'Relaxte terrasjes langs de <b>Douro</b> en op rooftops. Met een glaasje <b>port</b> de zonsondergang in — nooit gehaast, altijd uitzicht.', tags:['Riverside','Rooftop bars','Port-wijn','Rustig']},
+    n:{stars:5, body:'Bruisende <b>aperitivo-cultuur</b> op pleintjes en de <b>Lungomare</b>. Spritz, gezelligheid en straatleven — luid en altijd vol energie.', tags:['Aperitivo','Lungomare','Spritz','Levendig']} },
+  { key:'shoppen', emo:'🛍️', label:'Shoppen',
+    p:{stars:3, body:'Charmante boetiekjes en de <b>Rua de Santa Catarina</b>. Kurk-, leer- en sieradenwinkels; compact en overzichtelijk.', tags:['Boetieks','Santa Catarina','Lokaal','Compact']},
+    n:{stars:4, body:'Grote winkelstraten <b>Via Toledo</b> & <b>Via Chiaia</b>, de chique <b>Galleria Umberto</b> en levendige markten. Meer keuze en reuring.', tags:['Via Toledo','Galleria','Markten','Veel keuze']} },
+  { key:'zwembad', emo:'🏊', label:'Zwembad & zee',
+    p:{stars:3, body:'Top voor <b>rooftop-zwembaden</b> en strandsfeer, maar de <b>Atlantische zee is fris</b>. Meer liggen-en-genieten dan zwemmen.', tags:['Rooftop pools','Foz beach','Fris water']},
+    n:{stars:5, body:'<b>Warme Middellandse Zee</b>, echt zwemweer. Strandclubs en dagtripjes naar <b>Capri</b> of <b>Procida</b> om in te duiken.', tags:['Warme zee','Strandclubs','Capri','Echt zwemmen']} },
+  { key:'sight', emo:'📸', label:'Sightseeing',
+    p:{stars:4, body:'Licht en compact: <b>Livraria Lello</b>, de <b>Ribeira</b>, Dom Luís-brug en de portkelders in Gaia. Allemaal te voet.', tags:['Ribeira','Livraria Lello','Portkelders','Te voet']},
+    n:{stars:5, body:'Episch en intens: <b>Pompeï</b>, de <b>Vesuvius</b>, het UNESCO-centrum en dagtrips naar <b>Amalfi</b>. Meer "wow", meer afstand.', tags:['Pompeï','Vesuvius','Amalfi','UNESCO']} },
+  { key:'eten', emo:'🍽️', label:'Eten',
+    p:{stars:4, body:'Stevig & gezellig: <b>francesinha</b>, verse vis, <b>pastéis de nata</b> en uiteraard de port. Heel betaalbaar.', tags:['Francesinha','Pastéis','Verse vis','Port']},
+    n:{stars:5, body:'Wereldklasse voor weinig geld: de <b>echte pizza</b>, <b>sfogliatella</b>, mozzarella en sterke espresso. Eten is hier de hoofdattractie.', tags:['Pizza','Sfogliatella','Espresso','Topwaarde']} },
+  { key:'rust', emo:'😌', label:'Rust & tempo',
+    p:{stars:5, body:'<b>Kalm, veilig en ontspannen.</b> Het ideale tempo om te ontprikkelen en echt bij te komen.', tags:['Kalm','Veilig','Ontprikkelen']},
+    n:{stars:2, body:'<b>Druk, luid en chaotisch.</b> Heerlijk als je energie zoekt, minder als je rust wilt. Let op je spullen.', tags:['Druk','Energiek','Intens']} },
+  { key:'weer', emo:'☀️', label:'Weer (juni)',
+    p:{stars:4, body:'Aangenaam zomers: <b>±22–25°C</b>, zonnig met een frisse Atlantische bries. Nooit drukkend.', tags:['22–25°C','Frisse bries','Aangenaam']},
+    n:{stars:5, body:'Echt zomer: <b>±28–30°C</b> en volop zon. Heet, maar perfect voor zee en zwembad.', tags:['28–30°C','Volop zon','Heet']} },
+];
+function starStr(n){ return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+
+const tabsHost = document.getElementById('cmpTabs');
+CMP.forEach((c,i)=>{
+  const b=document.createElement('button');
+  b.className='cmp-tab'+(i===0?' on':'');
+  b.innerHTML=`<span class="emo">${c.emo}</span>${c.label}`;
+  b.addEventListener('click',()=>{ document.querySelectorAll('.cmp-tab').forEach(x=>x.classList.remove('on')); b.classList.add('on'); renderCmp(i); });
+  tabsHost.appendChild(b);
+});
+function renderCmp(i){
+  const c=CMP[i];
+  document.getElementById('pStars').textContent=starStr(c.p.stars);
+  document.getElementById('nStars').textContent=starStr(c.n.stars);
+  document.getElementById('pBody').innerHTML=c.p.body;
+  document.getElementById('nBody').innerHTML=c.n.body;
+  document.getElementById('pTags').innerHTML=c.p.tags.map(t=>`<span>${t}</span>`).join('');
+  document.getElementById('nTags').innerHTML=c.n.tags.map(t=>`<span>${t}</span>`).join('');
+}
+renderCmp(0);
+
+/* ---------- itinerary data ---------- */
+const ITIN = {
+  porto:[
+    {dow:'Do',t:'Aankomst',acts:[['✈️','Middag landen, inchecken bij een hotel met rooftop-pool in het centrum.'],['🍷','Avond: eerste terrasje langs de Douro met een glaasje port en zonsondergang.']]},
+    {dow:'Vr',t:'Slenteren',acts:[['📸','Ochtend: Ribeira, Livraria Lello, Clérigos-toren en São Bento-station.'],['🛍️','Middag shoppen op de Rua de Santa Catarina.'],['🏊','Eind van de middag bijkomen aan het rooftop-zwembad.']]},
+    {dow:'Za',t:'Strand & port',acts:[['🏖️','Naar Foz of Matosinhos voor strandsfeer en lunch met verse vis.'],['🍷','Middag: portkelders proeven in Vila Nova de Gaia.'],['🍽️','Avond: francesinha en een terras.']]},
+    {dow:'Zo',t:'Ontspannen',acts:[['😌','Luie ochtend, brunch en nog een keer het zwembad.'],['🚶','Optioneel: bootje op de Douro of een rustige wandeling.']]},
+    {dow:'Ma',t:'Vertrek',acts:[['☕','Laatste pastel de nata en espresso, dan richting vliegveld.']]},
+  ],
+  naples:[
+    {dow:'Do',t:'Aankomst',acts:[['✈️','Middag landen, inchecken nabij de Lungomare of het centrum.'],['🍕','Avond: de échte Napolitaanse pizza, daarna aperitivo op een plein.']]},
+    {dow:'Vr',t:'Stad & zee',acts:[['📸','Ochtend: historisch centrum (Spaccanapoli) en Castel dell\'Ovo.'],['🛍️','Middag shoppen op Via Toledo en de Galleria Umberto.'],['🌊','Late middag zwemmen bij een strandclub in Posillipo.']]},
+    {dow:'Za',t:'Eiland-dagtrip',acts:[['⛵','Dagtrip naar Capri of Procida: zwemmen, terrasjes en uitzicht.'],['🥂','Avond terug: aperitivo en zeevruchten op de Lungomare.']]},
+    {dow:'Zo',t:'Sightseeing',acts:[['🏛️','Optioneel: Pompeï of de Vesuvius (halve dag).'],['😌','Of juist relaxen: strandclub en lange lunch.']]},
+    {dow:'Ma',t:'Vertrek',acts:[['☕','Sterke espresso en een sfogliatella, dan richting vliegveld.']]},
+  ],
+};
+function setItin(which){
+  document.getElementById('itP').classList.toggle('on', which==='porto');
+  document.getElementById('itN').classList.toggle('on', which==='naples');
+  const host=document.getElementById('timeline'); host.innerHTML='';
+  ITIN[which].forEach(d=>{
+    const el=document.createElement('div'); el.className='tl-day';
+    el.innerHTML=`<div class="tl-dow"><div class="d">${d.dow}</div><div class="t">${d.t}</div></div>
+      <div class="tl-acts">${d.acts.map(a=>`<div class="row"><span class="tag">${a[0]}</span><span>${a[1]}</span></div>`).join('')}</div>`;
+    host.appendChild(el);
+  });
+}
+setItin('porto');
+
+/* ---------- quiz ---------- */
+const QUIZ=[
+  {q:'Wat is je hoofddoel dit weekend?', a:{l:'Volledig ontprikkelen & rust',emo:'🧘',v:'p'}, b:{l:'Opladen van energie & reuring',emo:'⚡',v:'n'}},
+  {q:'Wat doe je het liefst bij het water?', a:{l:'Liggen aan een rooftop-pool',emo:'🏊',v:'p'}, b:{l:'Zwemmen in een warme zee',emo:'🌊',v:'n'}},
+  {q:'Welk weer spreekt je aan?', a:{l:'Aangenaam zomers (±24°C)',emo:'🌤️',v:'p'}, b:{l:'Lekker heet (±30°C)',emo:'☀️',v:'n'}},
+  {q:'Hoeveel sightseeing wil je?', a:{l:'Licht & compact, te voet',emo:'🚶',v:'p'}, b:{l:'Episch (Pompeï, Capri, Amalfi)',emo:'🏛️',v:'n'}},
+  {q:'Welke sfeer past bij jou?', a:{l:'Charmant, kalm & verfijnd',emo:'🍷',v:'p'}, b:{l:'Levendig, luid & rauw',emo:'🍕',v:'n'}},
+];
+const answers=new Array(QUIZ.length).fill(null);
+const quizHost=document.getElementById('quiz');
+QUIZ.forEach((item,qi)=>{
+  const row=document.createElement('div'); row.className='q-row';
+  row.innerHTML=`<p>${qi+1}. ${item.q}</p>`;
+  const opts=document.createElement('div'); opts.className='opts';
+  [['a',item.a],['b',item.b]].forEach(([k,o])=>{
+    const btn=document.createElement('div'); btn.className='opt';
+    btn.innerHTML=`<span class="emo">${o.emo}</span>${o.l}`;
+    btn.addEventListener('click',()=>{
+      answers[qi]=o.v;
+      opts.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel-p','sel-n'));
+      btn.classList.add(o.v==='p'?'sel-p':'sel-n');
+      updateResult();
+    });
+    opts.appendChild(btn);
+  });
+  row.appendChild(opts);
+  quizHost.appendChild(row);
+});
+const result=document.createElement('div'); result.className='result';
+result.innerHTML=`<div class="rt">Jullie match</div><div class="rc" id="rc">Beantwoord de vragen…</div>
+  <div class="scorebar"><div class="sp" id="sp" style="width:50%"></div><div class="sn" id="sn" style="width:50%"></div></div>
+  <div class="score-lbl"><span class="lp">Porto <span id="lp">0</span></span><span class="ln"><span id="ln">0</span> Napels</span></div>`;
+quizHost.appendChild(result);
+function updateResult(){
+  const answered=answers.filter(Boolean);
+  const p=answers.filter(v=>v==='p').length;
+  const n=answers.filter(v=>v==='n').length;
+  const tot=Math.max(1, p+n);
+  document.getElementById('sp').style.width=(p/tot*100)+'%';
+  document.getElementById('sn').style.width=(n/tot*100)+'%';
+  document.getElementById('lp').textContent=p;
+  document.getElementById('ln').textContent=n;
+  const rc=document.getElementById('rc');
+  result.classList.remove('show-p','show-n');
+  if(answered.length<QUIZ.length){ rc.textContent=`Nog ${QUIZ.length-answered.length} te gaan…`; return; }
+  if(p>n){ rc.textContent='Porto ✈️'; result.classList.add('show-p'); }
+  else if(n>p){ rc.textContent='Napels ✈️'; result.classList.add('show-n'); }
+  else{ rc.textContent='Gelijkspel! 🤝'; }
+}
+
+go(0);
+</script>
+</body>
+</html>
